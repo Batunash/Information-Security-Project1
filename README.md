@@ -1,6 +1,9 @@
 # TrustVerify
 
-### 📺 [Project Presentation Video](https://youtu.be/MUg9WW3Qhu8)
+### 🚀 Project Resources
+
+**Presentation Video:** https://youtu.be/MUg9WW3Qhu8
+**GitHub Repository:** https://github.com/Batunash/Information-Security-Project1
 
 TrustVerify is a Python-based CLI project developed collaboratively by our team to verify **file integrity** and **file origin** using **SHA-256 hashing** and **RSA digital signatures**.
 
