@@ -55,7 +55,7 @@ def verify_integrity(directory_path, manifest_json="metadata.json"):
         if current_hash != saved_hash:
             tampered_files.append(rel_path)
             
-    return len(tampered_files) == 0
+    return len(tampered_files) == 0, tampered_files
 
 # --- BÖLÜM 2: GÖREV 4 - RSA Anahtar Çifti Üretimi ---
 def generate_rsa_keys():
@@ -135,11 +135,16 @@ if __name__ == "__main__":
     print("  -> İmza başarıyla metadata.json.sig olarak kaydedildi.")
     
     # --- ALICI (RECEIVER) İŞLEMLERİ (ORİJİNAL DOSYA) ---
-    print("\n[ALICI] 4. Dosyalar teslim alındı. İmza Genel Anahtar (Public Key) ile doğrulanıyor...")
+    print("\n[ALICI] 4. Dosyalar teslim alındı. Doğrulama yapılıyor...")
     if verify_signature(pub_key, manifest_yolu, sig_yolu):
         print("  [+] BAŞARILI: İmza Geçerli! Manifest dosyası Gönderici'den gelmiş.")
-        if verify_integrity(test_klasoru):
+        is_intact, tampered = verify_integrity(test_klasoru)
+        if is_intact:
              print("  [+] BAŞARILI: Hash Kontrolü Tamam! Dosyalar bozulmamış.")
+        else:
+             print("  [-] HATA: Dosyalar değiştirilmiş!")
+             for f in tampered:
+                 print(f"      -> Bozulmuş dosya: {f}")
     
     # --- HACKER SALDIRISI SİMÜLASYONU ---
     print("\n" + "-"*50)
@@ -154,7 +159,15 @@ if __name__ == "__main__":
     print("\n[ALICI] 6. Dosyalar teslim alındı. Tekrar doğrulama yapılıyor...")
     if verify_signature(pub_key, manifest_yolu, sig_yolu):
         print("  [+] BAŞARILI: İmza geçerli.")
+        is_intact, tampered = verify_integrity(test_klasoru)
+        if is_intact:
+             print("  [+] BAŞARILI: Hash Kontrolü Tamam!")
+        else:
+             print("  [-] HATA: Dosyalar değiştirilmiş!")
+             for f in tampered:
+                 print(f"      -> Bozulmuş dosya: {f}")
     else:
         print("  [-] HATA: İMZA GEÇERSİZ! (Verification Failed)")
         print("      DİKKAT! Manifest dosyası sahte veya yolda değiştirilmiş.")
+        print("      Hash kontrolüne gerek yok, kaynak zaten güvenilir değil.")
     print("="*50 + "\n")
