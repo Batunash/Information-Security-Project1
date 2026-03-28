@@ -5,7 +5,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding as rsa_padding
 from cryptography.hazmat.primitives import hashes
 
-# --- BÖLÜM 1: GÖREV 1 - Dosya Hashleme ---
+# --- PART 1: TASK 1 - File Hashing ---
 def generate_file_hash(filepath):
     if not os.path.exists(filepath):
         return None
@@ -15,7 +15,7 @@ def generate_file_hash(filepath):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-# --- BÖLÜM 1: GÖREV 2 - Manifest (metadata.json) Oluşturma ---
+# --- PART 1: TASK 2 - Manifest (metadata.json) Generation ---
 def generate_manifest(directory_path, output_json="metadata.json"):
     manifest = {}
     if not os.path.exists(directory_path):
@@ -35,7 +35,7 @@ def generate_manifest(directory_path, output_json="metadata.json"):
         json.dump(manifest, json_file, indent=4)
     return output_path
 
-# --- BÖLÜM 1: GÖREV 3 - Bütünlük Kontrolü (Check) ---
+# --- PART 1: TASK 3 - Integrity Check ---
 def verify_integrity(directory_path, manifest_json="metadata.json"):
     manifest_path = os.path.join(directory_path, manifest_json)
     if not os.path.exists(manifest_path):
@@ -57,9 +57,9 @@ def verify_integrity(directory_path, manifest_json="metadata.json"):
             
     return len(tampered_files) == 0, tampered_files
 
-# --- BÖLÜM 2: GÖREV 4 - RSA Anahtar Çifti Üretimi ---
+# --- PART 2: TASK 4 - RSA Key Pair Generation ---
 def generate_rsa_keys():
-    """Kullanıcı için 2048 bitlik Private ve Public anahtar çifti üretir."""
+    """Generates a 2048-bit Private and Public key pair for the user."""
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
@@ -67,9 +67,9 @@ def generate_rsa_keys():
     public_key = private_key.public_key()
     return private_key, public_key
 
-# --- BÖLÜM 2: GÖREV 5 - Dijital İmza Oluşturma (Signing) ---
+# --- PART 2: TASK 5 - Digital Signature Creation (Signing) ---
 def sign_manifest(private_key, manifest_path):
-    """metadata.json dosyasını okur, özetini alır ve Private Key ile imzalar."""
+    """Reads metadata.json, computes its hash, and signs it with the Private Key."""
     with open(manifest_path, "rb") as f:
         manifest_data = f.read()
         
@@ -87,9 +87,9 @@ def sign_manifest(private_key, manifest_path):
         f.write(signature)
     return signature, sig_path
 
-# --- BÖLÜM 2: GÖREV 6 - İmza Doğrulama (Verification) ---
+# --- PART 2: TASK 6 - Signature Verification ---
 def verify_signature(public_key, manifest_path, signature_path):
-    """Alıcının Public Key kullanarak dosyanın imzasını doğrulaması işlemi."""
+    """Receiver verifies the file signature using the Sender's Public Key."""
     with open(manifest_path, "rb") as f:
         manifest_data = f.read()
     with open(signature_path, "rb") as f:
@@ -109,65 +109,65 @@ def verify_signature(public_key, manifest_path, signature_path):
     except Exception:
         return False
 
-# --- PROJE VİDEOSU İÇİN TAM DEMO (TEST) KISMI ---
+# --- FULL DEMO FOR PROJECT VIDEO ---
 if __name__ == "__main__":
     print("\n" + "="*50)
-    print("TrustVerify Aracına Hoş Geldiniz! (Tam Senaryo)")
+    print("Welcome to TrustVerify! (Full Scenario)")
     print("="*50)
     
-    # 1. Ortam Hazırlığı
-    test_klasoru = "test_verileri"
-    if not os.path.exists(test_klasoru):
-        os.makedirs(test_klasoru)
-    test_dosyasi = os.path.join(test_klasoru, "cok_gizli_belge.txt")
-    with open(test_dosyasi, "w", encoding="utf-8") as f:
-        f.write("Bu belge Sender tarafindan olusturulmustur.")
+    # 1. Environment Setup
+    test_folder = "test_data"
+    if not os.path.exists(test_folder):
+        os.makedirs(test_folder)
+    test_file = os.path.join(test_folder, "top_secret_document.txt")
+    with open(test_file, "w", encoding="utf-8") as f:
+        f.write("This document was created by the Sender.")
         
-    # --- GÖNDERİCİ (SENDER) İŞLEMLERİ ---
-    print("\n[GÖNDERİCİ] 1. Dosyaların hash'leri alınıyor ve manifest (metadata.json) oluşturuluyor...")
-    manifest_yolu = generate_manifest(test_klasoru)
+    # --- SENDER OPERATIONS ---
+    print("\n[SENDER] 1. Hashing files and generating manifest (metadata.json)...")
+    manifest_path = generate_manifest(test_folder)
     
-    print("[GÖNDERİCİ] 2. RSA Anahtar Çifti Üretiliyor...")
+    print("[SENDER] 2. Generating RSA Key Pair...")
     priv_key, pub_key = generate_rsa_keys()
     
-    print("[GÖNDERİCİ] 3. Manifest dosyası Özel Anahtar (Private Key) ile imzalanıyor...")
-    sig, sig_yolu = sign_manifest(priv_key, manifest_yolu)
-    print("  -> İmza başarıyla metadata.json.sig olarak kaydedildi.")
+    print("[SENDER] 3. Signing manifest with Private Key...")
+    sig, sig_path = sign_manifest(priv_key, manifest_path)
+    print("  -> Signature saved successfully as metadata.json.sig")
     
-    # --- ALICI (RECEIVER) İŞLEMLERİ (ORİJİNAL DOSYA) ---
-    print("\n[ALICI] 4. Dosyalar teslim alındı. Doğrulama yapılıyor...")
-    if verify_signature(pub_key, manifest_yolu, sig_yolu):
-        print("  [+] BAŞARILI: İmza Geçerli! Manifest dosyası Gönderici'den gelmiş.")
-        is_intact, tampered = verify_integrity(test_klasoru)
+    # --- RECEIVER OPERATIONS (ORIGINAL FILE) ---
+    print("\n[RECEIVER] 4. Files received. Running verification...")
+    if verify_signature(pub_key, manifest_path, sig_path):
+        print("  [+] SUCCESS: Signature Valid! Manifest came from the Sender.")
+        is_intact, tampered = verify_integrity(test_folder)
         if is_intact:
-             print("  [+] BAŞARILI: Hash Kontrolü Tamam! Dosyalar bozulmamış.")
+             print("  [+] SUCCESS: Hash Check Passed! Files are intact.")
         else:
-             print("  [-] HATA: Dosyalar değiştirilmiş!")
+             print("  [-] ERROR: Files have been modified!")
              for f in tampered:
-                 print(f"      -> Bozulmuş dosya: {f}")
+                 print(f"      -> Tampered file: {f}")
     
-    # --- HACKER SALDIRISI SİMÜLASYONU ---
+    # --- HACKER ATTACK SIMULATION ---
     print("\n" + "-"*50)
-    print("[HACKER] 5. Yolda dosyaya müdahale ediliyor ve içerik değiştiriliyor!")
-    with open(test_dosyasi, "a", encoding="utf-8") as f:
-        f.write("\nGizli banka hesabi numarasi: TR00123...")
+    print("[HACKER] 5. Intercepting and modifying the file in transit!")
+    with open(test_file, "a", encoding="utf-8") as f:
+        f.write("\nSecret bank account number: TR00123...")
     
-    print("[HACKER] Hacker, yeni içeriğe göre sahte bir manifest oluşturuyor...")
-    generate_manifest(test_klasoru) # Hacker yeni hash hesapladı
+    print("[HACKER] Hacker recomputes a fake manifest with new hashes...")
+    generate_manifest(test_folder)
     
-    # --- ALICI (RECEIVER) İŞLEMLERİ (SABOTE EDİLMİŞ DOSYA) ---
-    print("\n[ALICI] 6. Dosyalar teslim alındı. Tekrar doğrulama yapılıyor...")
-    if verify_signature(pub_key, manifest_yolu, sig_yolu):
-        print("  [+] BAŞARILI: İmza geçerli.")
-        is_intact, tampered = verify_integrity(test_klasoru)
+    # --- RECEIVER OPERATIONS (TAMPERED FILE) ---
+    print("\n[RECEIVER] 6. Files received. Running verification again...")
+    if verify_signature(pub_key, manifest_path, sig_path):
+        print("  [+] SUCCESS: Signature valid.")
+        is_intact, tampered = verify_integrity(test_folder)
         if is_intact:
-             print("  [+] BAŞARILI: Hash Kontrolü Tamam!")
+             print("  [+] SUCCESS: Hash Check Passed!")
         else:
-             print("  [-] HATA: Dosyalar değiştirilmiş!")
+             print("  [-] ERROR: Files have been modified!")
              for f in tampered:
-                 print(f"      -> Bozulmuş dosya: {f}")
+                 print(f"      -> Tampered file: {f}")
     else:
-        print("  [-] HATA: İMZA GEÇERSİZ! (Verification Failed)")
-        print("      DİKKAT! Manifest dosyası sahte veya yolda değiştirilmiş.")
-        print("      Hash kontrolüne gerek yok, kaynak zaten güvenilir değil.")
+        print("  [-] ERROR: SIGNATURE INVALID! (Verification Failed)")
+        print("      WARNING! Manifest is forged or has been altered in transit.")
+        print("      No need to check hashes, the source is already untrusted.")
     print("="*50 + "\n")
