@@ -1,5 +1,7 @@
 # TrustVerify
 
+### 📺 [Project Presentation Video](https://youtu.be/MUg9WW3Qhu8)
+
 TrustVerify is a Python-based CLI project developed collaboratively by our team to verify **file integrity** and **file origin** using **SHA-256 hashing** and **RSA digital signatures**.
 
 ## Project Objective
@@ -9,6 +11,7 @@ In this project, we aimed to build a Command Line Interface (CLI) tool that allo
 ## Project Scope
 
 As part of this project, we implemented the following features:
+
 - generating SHA-256 hashes for files
 - creating a `metadata.json` manifest for a directory
 - checking files against the manifest to detect tampering
@@ -41,6 +44,7 @@ In our live demonstration, we first create the manifest and sign it. Then, we de
 **Team Name:** ShadowKey
 
 **Members:**
+
 - İsmail Girayhan DURMUŞ — 210208010
 - Batuhan OKULLU — 240208401
 
